@@ -9,3 +9,4 @@ export { default as File } from "./File";
 export { default as Lock } from "./Lock";
 export { default as MessagePlusSquare} from "./MessagePlusSquare";
 export { default as Settings } from "./Settings";
+export { default as Home } from "./Home";
