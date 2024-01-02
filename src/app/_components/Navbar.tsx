@@ -1,12 +1,11 @@
 "use client";
 import Link from "next/link";
-import { DotsVertical, Logo, Search } from "~/app/_components/Icons/Icons";
+import { Brush, DotsVertical, HelpCircle, Logo, MessagePlusSquare, Search, Settings, User, File, Lock, LogOut} from "~/app/_components/Icons/Icons";
 import { useState, type ChangeEvent, type KeyboardEvent, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { Menu, Transition } from "@headlessui/react";
-import { getServerAuthSession } from "~/server/auth";
-import { UserImage } from "./Components";
-import { Session } from "next-auth";
+import { UserImage, Button } from "./Components";
+import { type Session } from "next-auth";
 
 interface NavbarProps {
     children?: JSX.Element;
@@ -20,15 +19,52 @@ interface NavigationItem {
     lineAbove: boolean;
 }
 
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(" ");
+}
+
 
 export default function Navbar({ children, session }: NavbarProps) {
+    const userId = session?.user.id;
+
+    const signedInNavigation: NavigationItem[] = [
+    {
+        icon: (className) => <User className={className} />,
+        name: "Ver Perfil",
+        path: `/${String(userId)}/ProfileVideos`,
+        lineAbove: true,
+    },
+    {
+        icon: (className) => <MessagePlusSquare className={className} />,
+        name: "Subir Video",
+        path: "/Dashboard",
+        lineAbove: false,
+    },
+    {
+        icon: (className) => <LogOut className={className} />,
+        name: "Log Out",
+        path: "sign-out",
+        lineAbove: true,
+    },
+    ];
+    
+    const signedOutNavigation: NavigationItem[] = [
+    {
+        icon: (className) => <HelpCircle className={className} />,
+        name: "Help",
+        path: "/Blog/Help",
+        lineAbove: true,
+    },
+    ];
+    
+    const Navigation = session ? signedInNavigation : signedOutNavigation;
     const router = useRouter();
     const [searchInput, setSearchInput] = useState("");
-    console.log('Session',session)
+    
     
     const handleSearch = async () => {
         try {
-            await router.push('/SearchPage', {scroll: false});
+            router.push('/SearchPage', {scroll: false});
         } catch (error) {
             console.error("Error navigating to search page:", error);
         }
@@ -82,7 +118,7 @@ export default function Navbar({ children, session }: NavbarProps) {
                             <div>
                             <Menu.Button className="flex rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                                 {session ? (
-                                    <UserImage image={session?.user.image || ""} />
+                                    <UserImage image={session?.user.image ?? ""} />
                                 ) : (
                                     <DotsVertical className="w-5 stroke-gray-700 " />
                                 )}
@@ -100,7 +136,7 @@ export default function Navbar({ children, session }: NavbarProps) {
                                 <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                                     {session ? (
                                         <div className=" mx-4 my-2 flex  ">
-                                            <UserImage image={session?.user.image || ""} />
+                                            <UserImage image={session?.user.image ?? ""} />
                                             <div className="ml-2 flex w-full flex-col justify-start truncate ">
                                                 <p className="truncate text-sm font-semibold text-gray-700">
                                                     {session && <span>{session.user?.name}</span>}
@@ -117,9 +153,57 @@ export default function Navbar({ children, session }: NavbarProps) {
                                             Menu
                                         </p>
                                     )}
+                                    {Navigation.map((item) => (
+                                        <Menu.Item key={item.name}>
+                                        {({ active }) => (
+                                            <Link
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (item.path === "sign-out") {
+                                                    void router.push("/api/auth/signout");
+                                                } else {
+                                                    void router.push(item.path || "/");
+                                                }
+                                            }}
+                                            href={item.path || "/"}
+                                            className={classNames(
+                                                active ? "bg-gray-100 " : "",
+                                                "block px-4 py-2 text-sm text-gray-700",
+                                                item.lineAbove ? "border-t border-gray-200" : ""
+                                            )}
+                                            >
+                                            <div className="flex items-center ">
+                                                {item.icon("h-4 w-4 stroke-gray-700")}
+                                                <div className="pl-2">{item.name}</div>
+                                            </div>
+                                            </Link>
+                                        )}
+                                        </Menu.Item>
+                                    ))}    
                                 </Menu.Items>
                             </Transition>
                         </Menu>
+                        
+                        {session ? (
+                        ""
+                        ) : (
+                            <div className="flex flex-row space-x-3 ">
+                                <Button
+                                    variant="tertiary-gray"
+                                    size="md"
+                                    href="/api/auth/signin"
+                                >
+                                    Log in
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    href="/api/auth/signin"
+                                >
+                                    Sign up
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

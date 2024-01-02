@@ -30,6 +30,7 @@
     }
   },
   "include": [
+    "src/app/_components/Icons/*.tsx",
     "prisma/seed.ts",
     ".eslintrc.cjs",
     "next-env.d.ts",
