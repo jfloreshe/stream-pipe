@@ -16,3 +16,11 @@ export { default as Menu } from "./Menu";
 export { default as ClockRewind } from "./ClockRewind";
 export { default as Folder } from "./Folder";
 export { default as UserCheck } from "./UserCheck";
+export {
+    GreenPlay,
+    GreenHorn,
+    GreenPeople,
+    GreenEye,
+    GreenHeart,
+    GreenUserCheck,
+  } from "./GreenIcons";
